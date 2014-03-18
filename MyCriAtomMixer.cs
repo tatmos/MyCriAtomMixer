@@ -94,13 +94,13 @@ public class MyCriAtomMixer : EditorWindow {
 				Rect r = GUILayoutUtility.GetLastRect();
 				r.x += 8;
 				r.width -= 16;
-				r.y += 20 + 20*i+10*ch;
-				r.height = 16;
+				r.y = 20 + 24*i+10*ch;
+				r.height = 12;
 				EditorGUILayout.BeginVertical();
 				//GUILayout.Space(24.0f);
 				CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(i);
 				//EditorGUI.ProgressBar(r, lBusInfo.rmsLevels[ch], "BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
-				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.peakLevels[ch],lBusInfo.peakHoldLevels[ch],"BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
+				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.peakLevels[ch],lBusInfo.peakHoldLevels[ch],"BUS"+i+" : "+this.getDb(lBusInfo.rmsLevels[ch]));
 				EditorGUILayout.EndVertical();
 			}
 		}
@@ -117,10 +117,17 @@ public class MyCriAtomMixer : EditorWindow {
 
 	private void DrawProgress(Vector2 location ,Vector2 size,float progress,float progressHold,string valueString)
 	{
-		//GUI.DrawTexture(new Rect(location.x, location.y, size.x, size.y), progressBackground);
+		GUI.color = Color.gray;
+		GUI.DrawTexture(new Rect(location.x, location.y, size.x, size.y), progressBackground);
+		if(progress > 1){
+			GUI.color = Color.red;
+		} else {
+			GUI.color = Color.green;
+		}
 		EditorGUI.DrawTextureAlpha(new Rect(location.x, location.y, size.x * progress, size.y), progressForground); 
-		EditorGUI.DrawTextureAlpha(new Rect(size.x * progressHold-1, location.y, 2f, size.y), progressForground); 
+		EditorGUI.DrawTextureAlpha(new Rect(size.x * progressHold-1f, location.y, 2f, size.y), progressForground); 
 		//EditorGUI.DrawTextureAlpha
+		GUI.color = Color.white;
 		EditorGUI.DropShadowLabel(new Rect(location.x, location.y, size.x, size.y), valueString); 
 	}
 }
