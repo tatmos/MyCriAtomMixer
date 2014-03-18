@@ -1,13 +1,17 @@
 MyCriAtomMixer
 ==============
-使い方
+ADX2LEに簡易ミキサー表示を追加するEditor拡張です。
 
-ADX2LE for Unity を使用しているプロジェクトの
-Assets
-└Editor
-　└CriWare
-　　└CriAtom
-　　  └MyCriAtomMixer.cs ←ここにコピー
-　　  
-UnityEditorで、
-CRI>My>Open Cri Atom Mixer ...のメニューを開く
+■使い方<br>
+
+●セットアップ
+ADX2LE for Unity を使用しているプロジェクトの<br>
+Assets<br>
+└Editor<br>
+　└CriWare<br>
+　　└CriAtom<br>
+　　  └MyCriAtomMixer.cs ←ここにコピー<br>
+
+●ミキサー表示  
+UnityEditorで、<br>
+CRI>My>Open Cri Atom Mixer ...のメニューを開く<br>
