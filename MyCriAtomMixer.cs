@@ -100,7 +100,7 @@ public class MyCriAtomMixer : EditorWindow {
 				//GUILayout.Space(24.0f);
 				CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(i);
 				//EditorGUI.ProgressBar(r, lBusInfo.rmsLevels[ch], "BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
-				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.rmsLevels[ch],"BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
+				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.peakLevels[ch],lBusInfo.peakHoldLevels[ch],"BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
 				EditorGUILayout.EndVertical();
 			}
 		}
@@ -115,10 +115,11 @@ public class MyCriAtomMixer : EditorWindow {
 		return string.Format("{0:##.#0} dB",retValue);
 	}
 
-	private void DrawProgress(Vector2 location ,Vector2 size,float progress,string valueString)
+	private void DrawProgress(Vector2 location ,Vector2 size,float progress,float progressHold,string valueString)
 	{
 		//GUI.DrawTexture(new Rect(location.x, location.y, size.x, size.y), progressBackground);
 		EditorGUI.DrawTextureAlpha(new Rect(location.x, location.y, size.x * progress, size.y), progressForground); 
+		EditorGUI.DrawTextureAlpha(new Rect(size.x * progressHold-1, location.y, 2f, size.y), progressForground); 
 		//EditorGUI.DrawTextureAlpha
 		EditorGUI.DropShadowLabel(new Rect(location.x, location.y, size.x, size.y), valueString); 
 	}
