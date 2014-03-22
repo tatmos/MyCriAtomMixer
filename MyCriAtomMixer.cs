@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections;
@@ -75,16 +75,22 @@ public class MyCriAtomMixer : EditorWindow {
 	private void GUIDspSettings()
 	{
 		//this.acfPath = EditorGUILayout.TextField("ACF File Path", this.acfPath, EditorStyles.label);
+
+		EditorGUILayout.BeginHorizontal();
 		this.dspBusSetting = EditorGUILayout.TextField("DSP Bus Setting", this.dspBusSetting, EditorStyles.label);
-		
+		GUI.color = Color.green;
+		if(GUILayout.Button("Reload"))
+		{
+			CriAtomEx.AttachDspBusSetting(dspBusSetting); //バス変更
+			CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
+		}
+		EditorGUILayout.EndHorizontal();
+
 		EditorGUILayout.Space();
 
 		EditorGUILayout.BeginVertical();
 		GUILayout.Space(32.0f);
 		EditorGUILayout.EndVertical();
-
-		CriAtomEx.AttachDspBusSetting(dspBusSetting); //バス変更
-		CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
 
 		//CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(0); //バス0
 		//Debug.Log("level:" + lBusInfo.peakLevels[0].ToString()); //チャンネル0(Left)
