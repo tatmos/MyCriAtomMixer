@@ -14,6 +14,7 @@ public class MyCriAtomMixer : EditorWindow {
 	private bool scaling = true;
 	private Texture2D progressBackground;
 	private Texture2D progressForground;
+	private CriAtom atom;
 	// Public
 	public string dspBusSetting = "DspBusSetting_0";
 	#endregion
@@ -39,12 +40,45 @@ public class MyCriAtomMixer : EditorWindow {
 		{
 			if(progressBackground == null){
 				progressBackground = new Texture2D(16,16);
-				progressForground = new Texture2D(16,16);
+				progressForground = new Texture2D(2,2);
+				progressForground.SetPixel(0, 0, new Color(1,1,1,0.5f));
+				progressForground.SetPixel(0, 2, new Color(1,1,1,1f));
+
+				progressForground.Apply();
+
+				CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
 			}
 
 			Repaint ();
 		}
 	}
+
+	void GetSource()
+	{
+		if (this.atom == null) {
+			// ref : http://qiita.com/shin5734/items/fcf02aa84516dfad5d9c
+			// Project & Sceneにある GameObject を持つ全オブジェクトを取得
+			foreach(GameObject obj in Resources.FindObjectsOfTypeAll(typeof(GameObject)))
+			{
+				string path = AssetDatabase.GetAssetOrScenePath(obj);
+				
+				string sceneExtension = ".unity";
+				bool isExistInScene = Path.GetExtension(path).Equals(sceneExtension);
+				if(isExistInScene){ 
+					CriAtom tmpAtom = obj.GetComponent<CriAtom>();
+					if(tmpAtom != null)
+					{
+						this.atom = tmpAtom;//シーン上のAtomSourceを借りる（再生用）
+						break;
+					}
+					// シーンのオブジェクトを格納するリストに登録 
+				}else{ 
+					// プロジェクトのオブジェクトを格納するリストに登録 
+				}
+			}
+		}
+	}
+
 	private void ScalingWindow(int windowID)
 	{
 		GUILayout.Box("", GUILayout.Width(20), GUILayout.Height(20));
@@ -72,17 +106,28 @@ public class MyCriAtomMixer : EditorWindow {
 		GUILayout.EndScrollView();
 	}
 
+	private void Reload()
+	{
+		this.GetSource();
+		if(atom.dspBusSetting != ""){
+			this.dspBusSetting = atom.dspBusSetting;
+		} 
+
+		CriAtomEx.AttachDspBusSetting(dspBusSetting); //バス変更
+		CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
+	}
+
 	private void GUIDspSettings()
 	{
 		//this.acfPath = EditorGUILayout.TextField("ACF File Path", this.acfPath, EditorStyles.label);
 
 		EditorGUILayout.BeginHorizontal();
-		this.dspBusSetting = EditorGUILayout.TextField("DSP Bus Setting", this.dspBusSetting, EditorStyles.label);
+		this.dspBusSetting = EditorGUILayout.TextField("DSP Bus Setting", this.dspBusSetting);
 		GUI.color = Color.green;
 		if(GUILayout.Button("Reload"))
 		{
-			CriAtomEx.AttachDspBusSetting(dspBusSetting); //バス変更
-			CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
+			Reload();
+		
 		}
 		EditorGUILayout.EndHorizontal();
 
@@ -106,7 +151,7 @@ public class MyCriAtomMixer : EditorWindow {
 				//GUILayout.Space(24.0f);
 				CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(i);
 				//EditorGUI.ProgressBar(r, lBusInfo.rmsLevels[ch], "BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
-				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.peakLevels[ch],lBusInfo.peakHoldLevels[ch],"BUS"+i+" : "+this.getDb(lBusInfo.rmsLevels[ch]));
+				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.peakLevels[ch],lBusInfo.peakHoldLevels[ch],"BUS"+i+" : "+this.getDb(lBusInfo.peakLevels[ch]));
 				EditorGUILayout.EndVertical();
 			}
 		}
