@@ -15,6 +15,8 @@ public class MyCriAtomMixer : EditorWindow {
 	private Texture2D progressBackground;
 	private Texture2D progressForground;
 	private CriAtom atom;
+	private CriAtomExAsr.BusAnalyzerInfo[] lBusInfoList = new CriAtomExAsr.BusAnalyzerInfo[8];
+	private CriAtomExAsr.BusAnalyzerInfo[] lBusInfoDrawList = new CriAtomExAsr.BusAnalyzerInfo[8];
 	// Public
 	public string dspBusSetting = "DspBusSetting_0";
 	#endregion
@@ -46,7 +48,12 @@ public class MyCriAtomMixer : EditorWindow {
 
 				progressForground.Apply();
 
-				CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
+				CriAtom.SetBusAnalyzer(true); // バス解析器を有効化for(int i = 0;i<8;i++){
+				for(int i =0;i<8;i++){
+					lBusInfoList[i] = CriAtom.GetBusAnalyzerInfo(i);
+					
+					lBusInfoDrawList[i] = CriAtom.GetBusAnalyzerInfo(i);
+				}
 			}
 
 			Repaint ();
@@ -148,12 +155,30 @@ public class MyCriAtomMixer : EditorWindow {
 				r.y = 20 + 24*i+10*ch;
 				r.height = 12;
 				EditorGUILayout.BeginVertical();
-				//GUILayout.Space(24.0f);
-				CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(i);
-				//EditorGUI.ProgressBar(r, lBusInfo.rmsLevels[ch], "BUS"+i+":"+this.getDb(lBusInfo.rmsLevels[ch]));
-				DrawProgress(new Vector2(r.x,r.y),new Vector2(r.width,r.height),lBusInfo.peakLevels[ch],lBusInfo.peakHoldLevels[ch],"BUS"+i+" : "+this.getDb(lBusInfo.peakLevels[ch]));
+
+				if(CriAtom.GetBusAnalyzerInfo(i).peakLevels[ch] != lBusInfoList[i].peakLevels[ch])
+				{	
+					lBusInfoDrawList[i].peakLevels[ch] = lBusInfoList[i].peakLevels[ch];
+				}
+				if(CriAtom.GetBusAnalyzerInfo(i).peakHoldLevels[ch] != lBusInfoList[i].peakHoldLevels[ch])
+				{	
+					lBusInfoDrawList[i].peakHoldLevels[ch] = lBusInfoList[i].peakHoldLevels[ch];
+				}
+					
+
+				
+				DrawProgress(new Vector2(r.x,r.y),
+				             new Vector2(r.width,r.height),
+				             lBusInfoDrawList[i].peakLevels[ch],
+				             lBusInfoDrawList[i].peakHoldLevels[ch],"BUS"+i+" : "+this.getDb(lBusInfoDrawList[i].peakLevels[ch]));
+
+				
+				lBusInfoDrawList[i].peakLevels[ch] = Mathf.Lerp( lBusInfoDrawList[i].peakLevels[ch],0,Time.deltaTime);
+				//lBusInfoDrawList[i].peakHoldLevels[ch] = Mathf.Lerp( lBusInfoDrawList[i].peakHoldLevels[ch],0,Time.deltaTime);
+				
 				EditorGUILayout.EndVertical();
 			}
+			lBusInfoList[i] = CriAtom.GetBusAnalyzerInfo(i);	
 		}
 	}
 
