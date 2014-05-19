@@ -16,3 +16,5 @@ Assets<br>
 ●ミキサー表示  
 UnityEditorで、<br>
 CRI>My>Open Cri Atom Mixer ...のメニューを開く<br>
+
+This software is released under the MIT License, see LICENSE.txt.
