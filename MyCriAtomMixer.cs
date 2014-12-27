@@ -124,6 +124,8 @@ public class MyCriAtomMixer : EditorWindow {
 		CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
 	}
 
+	int channnleNum = 6;
+	int busNum = 1;
 	private void GUIDspSettings()
 	{
 		//this.acfPath = EditorGUILayout.TextField("ACF File Path", this.acfPath, EditorStyles.label);
@@ -133,8 +135,21 @@ public class MyCriAtomMixer : EditorWindow {
 		GUI.color = Color.green;
 		if(GUILayout.Button("Reload"))
 		{
-			Reload();
-		
+			Reload();		
+		}
+
+		EditorGUILayout.EndHorizontal();
+		EditorGUILayout.BeginHorizontal();
+		if(GUILayout.Button(channnleNum +"ch")){
+			if(channnleNum == 2){
+				channnleNum = 6;
+			} else {
+				channnleNum = 2;
+			}
+		}
+		if(GUILayout.Button(busNum +"bus")){
+			busNum *= 2;
+			if(busNum > 8)busNum = 1;
 		}
 		EditorGUILayout.EndHorizontal();
 
@@ -147,13 +162,13 @@ public class MyCriAtomMixer : EditorWindow {
 		//CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(0); //バス0
 		//Debug.Log("level:" + lBusInfo.peakLevels[0].ToString()); //チャンネル0(Left)
 
-		for(int i = 0;i<8;i++){
-			for(int ch =0;ch<2;ch++){
+		for(int i = 0;i<busNum;i++){
+			for(int ch =0;ch<channnleNum;ch++){
 				Rect r = GUILayoutUtility.GetLastRect();
 				r.x += 8;
 				r.width -= 16;
-				r.y = 20 + 24*i+10*ch;
-				r.height = 12;
+				r.y = 40 + (10*(ch)) + i*10*channnleNum;
+				r.height = 10;
 				EditorGUILayout.BeginVertical();
 
 				if(CriAtom.GetBusAnalyzerInfo(i).peakLevels[ch] != lBusInfoList[i].peakLevels[ch])
@@ -164,13 +179,13 @@ public class MyCriAtomMixer : EditorWindow {
 				{	
 					lBusInfoDrawList[i].peakHoldLevels[ch] = lBusInfoList[i].peakHoldLevels[ch];
 				}
-					
 
-				
 				DrawProgress(new Vector2(r.x,r.y),
 				             new Vector2(r.width,r.height),
 				             lBusInfoDrawList[i].peakLevels[ch],
-				             lBusInfoDrawList[i].peakHoldLevels[ch],"BUS"+i+" : "+this.getDb(lBusInfoDrawList[i].peakLevels[ch]));
+				             lBusInfoDrawList[i].peakHoldLevels[ch],"BUS"+i+" " + ch + " : "+this.getDb(lBusInfoDrawList[i].peakLevels[ch]),
+				             (i % 2 == 1) ? Color.gray : Color.black
+				             );
 
 				
 				lBusInfoDrawList[i].peakLevels[ch] = Mathf.Lerp( lBusInfoDrawList[i].peakLevels[ch],0,Time.deltaTime);
@@ -191,9 +206,9 @@ public class MyCriAtomMixer : EditorWindow {
 		return string.Format("{0:##.#0} dB",retValue);
 	}
 
-	private void DrawProgress(Vector2 location ,Vector2 size,float progress,float progressHold,string valueString)
+	private void DrawProgress(Vector2 location ,Vector2 size,float progress,float progressHold,string valueString,Color bgColor)
 	{
-		GUI.color = Color.gray;
+		GUI.color = bgColor;//Color.gray;
 		GUI.DrawTexture(new Rect(location.x, location.y, size.x, size.y), progressBackground);
 		if(progress > 1){
 			GUI.color = Color.red;
