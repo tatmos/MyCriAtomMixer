@@ -25,15 +25,16 @@ public class MyCriAtomMixer : EditorWindow {
 	{
 		EditorWindow.GetWindow<MyCriAtomMixer>(false, "CRI Atom Mixer");
 	}
-
+	
 	static MyCriAtomMixer()
 	{
 		//EditorApplication.update += Update;
-
+		
 	}
-
+	
 	// Use this for initialization
 	void Start () {
+
 	}
 	
 	// Update is called once per frame
@@ -45,9 +46,9 @@ public class MyCriAtomMixer : EditorWindow {
 				progressForground = new Texture2D(2,2);
 				progressForground.SetPixel(0, 0, new Color(1,1,1,0.5f));
 				progressForground.SetPixel(0, 2, new Color(1,1,1,1f));
-
+				
 				progressForground.Apply();
-
+				
 				CriAtom.SetBusAnalyzer(true); // バス解析器を有効化for(int i = 0;i<8;i++){
 				for(int i =0;i<8;i++){
 					lBusInfoList[i] = CriAtom.GetBusAnalyzerInfo(i);
@@ -55,11 +56,11 @@ public class MyCriAtomMixer : EditorWindow {
 					lBusInfoDrawList[i] = CriAtom.GetBusAnalyzerInfo(i);
 				}
 			}
-
+			
 			Repaint ();
 		}
 	}
-
+	
 	void GetSource()
 	{
 		if (this.atom == null) {
@@ -85,7 +86,7 @@ public class MyCriAtomMixer : EditorWindow {
 			}
 		}
 	}
-
+	
 	private void ScalingWindow(int windowID)
 	{
 		GUILayout.Box("", GUILayout.Width(20), GUILayout.Height(20));
@@ -98,11 +99,11 @@ public class MyCriAtomMixer : EditorWindow {
 			this.windowRect = new Rect(windowRect.x, windowRect.y, windowRect.width + Event.current.delta.x, windowRect.height + Event.current.delta.y);
 		
 	}
-
+	
 	private void OnGUI()
 	{
 		this.windowRect = GUILayout.Window(0, windowRect, ScalingWindow, "resizeable", GUILayout.MinHeight(80), GUILayout.MaxHeight(200));
-
+		
 		this.scrollPos_Window = GUILayout.BeginScrollView(this.scrollPos_Window);
 		{
 			if (/*EditorApplication.isCompiling && */EditorApplication.isPlaying)
@@ -119,17 +120,24 @@ public class MyCriAtomMixer : EditorWindow {
 		if(atom.dspBusSetting != ""){
 			this.dspBusSetting = atom.dspBusSetting;
 		} 
-
+		
 		CriAtomEx.AttachDspBusSetting(dspBusSetting); //バス変更
 		CriAtom.SetBusAnalyzer(true); // バス解析器を有効化
-	}
 
+		for(int i = 0;i<8;i++){
+			busVolumes[i] = 1;
+		}
+	}
+	
 	int channnleNum = 6;
 	int busNum = 1;
+	float[] busVolumes = new float[] {1,1,1,1, 1,1,1,1};
+	bool useBusVolumeGUI = false;
+
 	private void GUIDspSettings()
 	{
 		//this.acfPath = EditorGUILayout.TextField("ACF File Path", this.acfPath, EditorStyles.label);
-
+		
 		EditorGUILayout.BeginHorizontal();
 		this.dspBusSetting = EditorGUILayout.TextField("DSP Bus Setting", this.dspBusSetting);
 		GUI.color = Color.green;
@@ -137,7 +145,7 @@ public class MyCriAtomMixer : EditorWindow {
 		{
 			Reload();		
 		}
-
+		
 		EditorGUILayout.EndHorizontal();
 		EditorGUILayout.BeginHorizontal();
 		if(GUILayout.Button(channnleNum +"ch")){
@@ -151,26 +159,50 @@ public class MyCriAtomMixer : EditorWindow {
 			busNum *= 2;
 			if(busNum > 8)busNum = 1;
 		}
+		if(GUILayout.Button("Use BusVolume")){
+			if(useBusVolumeGUI)
+			{
+				useBusVolumeGUI = false;
+			} else {
+				useBusVolumeGUI = true;
+			}
+		}
 		EditorGUILayout.EndHorizontal();
 
+		if(useBusVolumeGUI){
+			for(int i = 0;i<busNum;i++){
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Label("Bus"+i+" Volume:" + busVolumes[i].ToString("f2") + " (" + getDb(busVolumes[i])+ ")");
+				busVolumes[i] = GUILayout.HorizontalSlider( busVolumes[i],0,1);
+				CriAtomExAsr.SetBusVolume(i,busVolumes[i]);
+				EditorGUILayout.EndHorizontal();
+			}
+		}
+		
 		EditorGUILayout.Space();
-
+		
 		EditorGUILayout.BeginVertical();
-		GUILayout.Space(32.0f);
+		EditorGUILayout.Space();
 		EditorGUILayout.EndVertical();
-
+		
 		//CriAtomExAsr.BusAnalyzerInfo lBusInfo = CriAtom.GetBusAnalyzerInfo(0); //バス0
 		//Debug.Log("level:" + lBusInfo.peakLevels[0].ToString()); //チャンネル0(Left)
 
+
 		for(int i = 0;i<busNum;i++){
+
 			for(int ch =0;ch<channnleNum;ch++){
 				Rect r = GUILayoutUtility.GetLastRect();
 				r.x += 8;
 				r.width -= 16;
-				r.y = 40 + (10*(ch)) + i*10*channnleNum;
+				if(useBusVolumeGUI){
+					r.y = 22*busNum + 40 + (10*(ch)) + i*10*channnleNum;
+				} else {
+					r.y = 40 + (10*(ch)) + i*10*channnleNum;
+				}
 				r.height = 10;
 				EditorGUILayout.BeginVertical();
-
+				
 				if(CriAtom.GetBusAnalyzerInfo(i).peakLevels[ch] != lBusInfoList[i].peakLevels[ch])
 				{	
 					lBusInfoDrawList[i].peakLevels[ch] = lBusInfoList[i].peakLevels[ch];
@@ -179,14 +211,14 @@ public class MyCriAtomMixer : EditorWindow {
 				{	
 					lBusInfoDrawList[i].peakHoldLevels[ch] = lBusInfoList[i].peakHoldLevels[ch];
 				}
-
+				
 				DrawProgress(new Vector2(r.x,r.y),
 				             new Vector2(r.width,r.height),
 				             lBusInfoDrawList[i].peakLevels[ch],
-				             lBusInfoDrawList[i].peakHoldLevels[ch],"BUS"+i+" " + ch + " : "+this.getDb(lBusInfoDrawList[i].peakLevels[ch]),
+				             lBusInfoDrawList[i].peakHoldLevels[ch],"BUS"+i+" (" + ch + ") : "+this.getDb(lBusInfoDrawList[i].peakLevels[ch]),
 				             (i % 2 == 1) ? Color.gray : Color.black
 				             );
-
+				
 				
 				lBusInfoDrawList[i].peakLevels[ch] = Mathf.Lerp( lBusInfoDrawList[i].peakLevels[ch],0,Time.deltaTime);
 				//lBusInfoDrawList[i].peakHoldLevels[ch] = Mathf.Lerp( lBusInfoDrawList[i].peakHoldLevels[ch],0,Time.deltaTime);
@@ -194,18 +226,22 @@ public class MyCriAtomMixer : EditorWindow {
 				EditorGUILayout.EndVertical();
 			}
 			lBusInfoList[i] = CriAtom.GetBusAnalyzerInfo(i);	
-		}
-	}
 
+
+		}
+
+
+	}
+	
 	private string getDb(float volume)
 	{
 		float retValue = Mathf.Floor( 20.0f * Mathf.Log10(volume)*100f)/100f;
 		if(retValue< -96){
 			retValue = -96;
 		}
-		return string.Format("{0:##.#0} dB",retValue);
+		return string.Format("{0:#0.#0} dB",retValue);
 	}
-
+	
 	private void DrawProgress(Vector2 location ,Vector2 size,float progress,float progressHold,string valueString,Color bgColor)
 	{
 		GUI.color = bgColor;//Color.gray;
