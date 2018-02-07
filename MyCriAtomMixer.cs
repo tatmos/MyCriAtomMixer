@@ -129,7 +129,7 @@ public class MyCriAtomMixer : EditorWindow {
 		}
 	}
 	
-	int channnleNum = 6;
+	int channnleNum = 8;
 	int busNum = 1;
 	float[] busVolumes = new float[] {1,1,1,1, 1,1,1,1};
 	bool useBusVolumeGUI = false;
@@ -150,10 +150,10 @@ public class MyCriAtomMixer : EditorWindow {
 		EditorGUILayout.BeginHorizontal();
 		if(GUILayout.Button(channnleNum +"ch")){
 			if(channnleNum == 2){
-				channnleNum = 6;
+				channnleNum = 8;
 			} else {
 				channnleNum = 2;
-			}
+			}	
 		}
 		if(GUILayout.Button(busNum +"bus")){
 			busNum *= 2;
