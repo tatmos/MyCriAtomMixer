@@ -12,6 +12,8 @@ Assets<br>
 　└CriWare<br>
 　　└CriAtom<br>
 　　  └MyCriAtomMixer.cs ←ここにコピー<br>
+    
+Editorフォルダの下であればだいたいOK　　
 
 ●ミキサー表示  
 UnityEditorで、<br>
